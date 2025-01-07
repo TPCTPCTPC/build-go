@@ -45,7 +45,7 @@ jobs:
     - name: Build sing-box
       run: |
         cd sing-box
-        go build -ldflags "-s -w -trimpath" ./cmd/sing-box
+        go build -ldflags "-s -w" ./cmd/sing-box
 
     - name: Test sing-box
       run: |
