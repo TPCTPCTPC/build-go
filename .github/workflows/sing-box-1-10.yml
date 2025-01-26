@@ -22,7 +22,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
-        go-version: '1.23.4'
+        go-version: '1.23.5'
 
     - name: Cache Go modules
       uses: actions/cache@v3
@@ -45,7 +45,7 @@ jobs:
     - name: Build sing-box
       run: |
         cd sing-box
-        CGO_ENABLED=0 go build -gcflags="-l=4 -trimpath" -ldflags "-s -w" ./cmd/sing-box
+        CGO_ENABLED=0 go build -trimpath -gcflags="-l -l -l" -ldflags "-s -w" ./cmd/sing-box
 
     - name: Test sing-box
       run: |
