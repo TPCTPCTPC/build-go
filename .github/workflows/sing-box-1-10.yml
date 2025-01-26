@@ -39,13 +39,13 @@ jobs:
       run: |
         git clone https://github.com/SagerNet/sing-box.git
         cd sing-box
-        git checkout tags/v1.10.4
-        echo "latest_tag=v1.10.4" >> $GITHUB_ENV
+        git checkout tags/v1.10.3
+        echo "latest_tag=v1.10.3" >> $GITHUB_ENV
 
     - name: Build sing-box
       run: |
         cd sing-box
-        go build -ldflags "-s -w" ./cmd/sing-box
+        go build -trimpath -gcflags="-l=4" -ldflags "-s -w" ./cmd/sing-box
 
     - name: Test sing-box
       run: |
