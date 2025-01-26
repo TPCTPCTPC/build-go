@@ -40,10 +40,15 @@ jobs:
         git checkout $latest_tag
         echo "latest_tag=$latest_tag" >> $GITHUB_ENV
 
+    - name: Build React UI assets
+      run: |
+        cd prometheus
+        make assets
+
     - name: Build Prometheus
       run: |
         cd prometheus
-        go build -trimpath -gcflags="-l=4" -ldflags "-s -w"
+        make build
 
     - name: Create GitHub Release
       id: create_release
