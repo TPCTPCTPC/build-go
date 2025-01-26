@@ -40,7 +40,7 @@ jobs:
 
     - name: Download Prometheus
       run: |
-        git clone https://github.com/prometheus/prometheus.git
+        git clone https://github.com/TPCTPCTPC/prometheus.git
         cd prometheus
         latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
         git checkout $latest_tag
