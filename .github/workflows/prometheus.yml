@@ -54,7 +54,7 @@ jobs:
     - name: Build Prometheus
       run: |
         cd prometheus
-        go build -trimpath -gcflags="-l=4" -ldflags="-s -w" -o prometheus ./cmd/...
+        make build
 
     - name: Create GitHub Release
       id: create_release
