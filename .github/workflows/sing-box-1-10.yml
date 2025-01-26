@@ -45,7 +45,7 @@ jobs:
     - name: Build sing-box
       run: |
         cd sing-box
-        go build -trimpath -gcflags="-l=4" -ldflags "-s -w" ./cmd/sing-box
+        CGO_ENABLED=0 go build -gcflags="-l=4 -trimpath" -ldflags "-s -w" ./cmd/sing-box
 
     - name: Test sing-box
       run: |
