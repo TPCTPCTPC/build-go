@@ -32,6 +32,9 @@ jobs:
     - name: Install npm
       run: npm install -g npm@10
 
+    - name: Update caniuse-lite database
+      run: npx update-browserslist-db@latest
+
     - name: Download Prometheus
       run: |
         git clone https://github.com/prometheus/prometheus.git
