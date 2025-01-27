@@ -1,0 +1,74 @@
+name: Build Sing-box 1.11
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.23.5'
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          /go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download Sing-box
+      id: download_singbox
+      run: |
+        git clone https://github.com/SagerNet/sing-box.git
+        cd sing-box
+        git checkout tags/v1.11.0-rc.1
+        echo "latest_tag=v1.11.0-rc.1" >> $GITHUB_ENV
+
+    - name: Build sing-box
+      run: |
+        cd sing-box
+        CGO_ENABLED=0 go build -trimpath -gcflags="-l=4" -ldflags "-s -w" ./cmd/sing-box
+
+    - name: Test sing-box
+      run: |
+        cd sing-box
+        go test ./...
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.latest_tag }}
+        release_name: "sing-box ${{ env.latest_tag }}"
+        draft: false
+        prerelease: false
+
+    - name: Upload build to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: sing-box/sing-box
+        asset_name: sing-box
+        asset_content_type: application/octet-stream
