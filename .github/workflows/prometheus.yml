@@ -42,9 +42,7 @@ jobs:
       run: |
         git clone https://github.com/TPCTPCTPC/prometheus.git
         cd prometheus
-        latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
-        git checkout $latest_tag
-        echo "latest_tag=$latest_tag" >> $GITHUB_ENV
+        git checkout main
 
     - name: Build React UI assets
       run: |
@@ -62,8 +60,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.latest_tag }}
-        release_name: "Prometheus ${{ env.latest_tag }}"
+        tag_name: main
+        release_name: "Prometheus main"
         draft: false
         prerelease: false
 
