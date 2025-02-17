@@ -29,8 +29,8 @@ jobs:
       run: |
         git clone https://github.com/prometheus/node_exporter.git
         cd node_exporter
-        git checkout tags/v1.8.2
-        echo "latest_tag=v1.8.2" >> $GITHUB_ENV
+        git checkout tags/v1.9.0
+        echo "latest_tag=v1.9.0" >> $GITHUB_ENV
 
     - name: Build
       run: |
