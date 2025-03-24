@@ -29,7 +29,6 @@ jobs:
       run: |
         git clone https://github.com/IrineSistiana/mosproxy.git
         cd mosproxy
-        git checkout dev
         echo "dev" >> $GITHUB_ENV
 
     - name: Build
