@@ -39,8 +39,8 @@ jobs:
       run: |
         git clone https://github.com/SagerNet/sing-box.git
         cd sing-box
-        git checkout tags/v1.11.1
-        echo "latest_tag=v1.11.1" >> $GITHUB_ENV
+        git checkout tags/v1.11.7
+        echo "latest_tag=v1.11.7" >> $GITHUB_ENV
 
     - name: Build sing-box
       run: |
