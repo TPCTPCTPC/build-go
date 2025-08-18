@@ -1,0 +1,51 @@
+name: Build latest Redis deb
+
+on:
+  workflow_dispatch:   # 只支持手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: debian:trixie
+    steps:
+      - name: Install build deps
+        run: |
+          apt-get update
+          apt-get install -y build-essential tcl pkg-config wget checkinstall
+
+      - name: Download latest Redis
+        run: |
+          wget https://download.redis.io/redis-stable.tar.gz
+          tar -xzf redis-stable.tar.gz
+          mv redis-stable redis-src
+
+      - name: Build Redis
+        run: |
+          cd redis-src
+          make -j$(nproc)
+
+      - name: Build .deb package
+        run: |
+          cd redis-src
+          VERSION=$(grep "REDIS_VERSION =" src/Makefile | awk '{print $3}')
+          sudo checkinstall -y --pkgname=redis \
+                             --pkgversion=$VERSION \
+                             --backup=no --deldoc=yes --fstrans=no --default \
+                             make install
+          mv *.deb ../redis_${VERSION}.deb
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: redis-deb
+          path: redis_*.deb
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Redis ${{ env.VERSION }}"
+          tag_name: "redis-${{ env.VERSION }}"
+          files: redis_*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
