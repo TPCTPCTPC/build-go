@@ -1,68 +1,61 @@
-name: Build & Release sing-box (stable)
+name: Build & Release sing-box
 
 on:
-  workflow_dispatch:      # 手动触发
-  schedule:               # 每天 00:00 UTC 检查新版本
-    - cron: '0 0 * * *'
+  workflow_dispatch:
+  push:
+    tags: ['v*']        # 推标签即自动发布
 
 permissions:
-  contents: write         # 生成 Release ⬆️ 资产所需
+  contents: write
 
 env:
-  build_tags: "with_clash_api"
+  build_tags: "with_clash_api"   # 只编译 Clash API
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    # 1. 解析 GitHub API，取 sing-box 最新“非预发行”版本号
-    - name: Get latest stable tag
+    # 1. 取 sing-box 最新稳定版 tag
+    - name: Fetch latest release tag
       id: latest
       run: |
         tag=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases \
               | jq -r '[.[] | select(.prerelease==false and .draft==false)][0].tag_name')
-        echo "tag=$tag" >> "$GITHUB_OUTPUT"
+        echo "tag=$tag" >>"$GITHUB_OUTPUT"
 
-    # 2. 直接检出 sing-box 指定版本
-    - name: Checkout sing-box
-      uses: actions/checkout@v4
+    # 2. 检出对应源码
+    - uses: actions/checkout@v4
       with:
         repository: SagerNet/sing-box
         ref: ${{ steps.latest.outputs.tag }}
 
-    # 3. 安装「最新稳定版」Go
-    - name: Set up Go
-      uses: actions/setup-go@v5
+    # 3. 安装最新稳定版 Go
+    - uses: actions/setup-go@v5
       with:
         go-version: stable
         check-latest: true
 
-    # 4. 缓存 Go 构建
-    - name: Cache Go
-      uses: actions/cache@v4
+    # 4. 缓存构建
+    - uses: actions/cache@v4
       with:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: ${{ runner.os }}-go-
 
-    # 5. 编译（官方优化参数 + 仅 with_clash_api）
-    - name: Build sing-box
-      env:
-        TAGS: ${{ env.build_tags }}
+    # 5. 编译（官方性能参数 + 单标签）
+    - name: Build
       run: |
-        echo "Building with tags: $TAGS"
-        CGO_ENABLED=0 \
-        go build -trimpath -v \
+        echo "Tags: $build_tags"
+        CGO_ENABLED=0 go build -trimpath -v \
           -ldflags "-s -w \
                     -X 'github.com/sagernet/sing-box/constant.Version=${{ steps.latest.outputs.tag }}' \
                     -buildid= \
                     -checklinkname=0" \
-          -tags "$TAGS" \
+          -tags "$build_tags" \
           ./cmd/sing-box
 
-    # 6. 单元测试
+    # 6. 运行测试
     - name: Test
       run: go test ./...
 
@@ -73,5 +66,5 @@ jobs:
       run: |
         gh release create "${{ steps.latest.outputs.tag }}" \
           --title "sing-box ${{ steps.latest.outputs.tag }}" \
-          --notes "Automated build with tag: with_clash_api" \
+          --notes "Automated build (tags: $build_tags)" \
           ./sing-box#sing-box-linux-amd64
