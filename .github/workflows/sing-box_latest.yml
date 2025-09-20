@@ -45,7 +45,7 @@ jobs:
     - name: Build sing-box
       run: |
         cd sing-box
-        CGO_ENABLED=0 go build -v -trimpath -ldflags "-s -w -buildid= -checklinkname=0" -tags "with_clash_api" ./cmd/sing-box
+        CGO_ENABLED=0 go build -v -trimpath -ldflags "-s -w" -tags "with_clash_api" ./cmd/sing-box
 
     - name: Test sing-box
       run: |
