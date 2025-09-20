@@ -52,7 +52,7 @@ jobs:
                     -X 'github.com/sagernet/sing-box/constant.Version=${{ steps.latest.outputs.tag }}' \
                     -buildid= \
                     -checklinkname=0" \
-          -tags "$build_tags" \
+          -tags "with_clash_api" \
           ./cmd/sing-box
 
     # 6. 运行测试
